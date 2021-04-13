@@ -1,0 +1,39 @@
+{
+  "name": "pokemon-play",
+  "version": "1.0.1",
+  "description": "Pokemon Game Discord",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node ./bot.js",
+    "dev": "cross-env NODE_ENV=development nodemon ./bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StealthAdder/Pokemon-Play.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "NodeJS",
+    "RESTful-API",
+    "ExpressJS",
+    "MongoDB",
+    "DiscordJS"
+  ],
+  "author": "StealthAdder",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/StealthAdder/Pokemon-Play/issues"
+  },
+  "homepage": "https://github.com/StealthAdder/Pokemon-Play#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.12.3"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.7"
+  }
+}
