@@ -130,4 +130,4 @@ client.on('message', (message) => {
   }
 });
 
-client.login(process.env.PP_TOKEN);
+client.login(process.env.BEBOT_TOKEN);

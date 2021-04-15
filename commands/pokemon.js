@@ -202,6 +202,18 @@ module.exports.run = async (client, message, args, messageArray) => {
       });
   };
 
+  if (args[0] === 'search') {
+    if (args[1] === 'item') {
+      // console.log(`Pinged`);
+      const SearchPokeBallSVC = require('./services/SearchPokeBallSVC');
+      SearchPokeBallSVC(client, msg, args, messageArray);
+    }
+    if (args[1] === 'berry') {
+      const SearchBerrySVC = require('./services/SearchBerrySVC');
+      SearchBerrySVC(client, msg, args, messageArray);
+    }
+  }
+
   // SIGN UP
   if (args[0] === 'signup') {
     // SIGNUP command
@@ -287,7 +299,7 @@ module.exports.run = async (client, message, args, messageArray) => {
         }
       }
     });
-  } else if (args[0] === 'search') {
+  } else if (args[0] === 'search' && args[1] === 'pokemon') {
     // RANDOM POKEMON TO COLLECT
 
     // check if the user is a member

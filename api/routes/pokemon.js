@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const userData = require('../models/userData');
 
+// findUserData
+const FindUserData = async (userid) => {
+  console.log(userid);
+  return await userData.find({ userid: userid });
+};
+
+router.get('/', async (req, res) => {
+  res.send({ msg: 'API Up and Running.' }).status(200);
+});
+
 // SIGN UP
 router.post('/signup', async (req, res) => {
   // console.log(req.body);
@@ -104,6 +114,33 @@ router.post('/getEnergy', async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+  }
+});
+
+router.post('/pokeball', async (req, res) => {
+  // console.log(req.body);
+  const { userid, value } = req.body;
+
+  let result = await FindUserData(userid);
+
+  let _id = result[0]._id;
+  let currentpokeball = result[0].pokeball.pokeballCount;
+  let updates = {
+    $set: { 'pokeball.pokeballCount': currentpokeball + value },
+  };
+  let options = { new: true };
+
+  let chgPokeBall = await userData.findByIdAndUpdate(_id, updates, options);
+  // console.log(typeof chgPokeBall);
+  if (Object.keys(chgPokeBall).length > 0) {
+    res.send({
+      addedItem: true,
+      info: chgPokeBall,
+    });
+  } else {
+    res.send({
+      addedItem: false,
+    });
   }
 });
 
