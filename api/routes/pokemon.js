@@ -1,4 +1,5 @@
 const express = require('express');
+const { rawListeners } = require('../models/userData');
 const router = express.Router();
 const userData = require('../models/userData');
 
@@ -58,39 +59,51 @@ router.post('/signin', async (req, res) => {
 });
 
 //Catch Pokemon by using energy!
-router.post('/energize', async (req, res) => {
-  // console.log(req.body);
-  let pokeid = req.body.id;
-  let pokemonName = req.body.pokemonName;
-  let energy = req.body.energy;
-  // console.log(pokemonName);
-
-  // check the user credits is it sufficient to catch the pokemon.
-  try {
-    let result = await userData.find({ userid: req.body.userid });
-    // console.log(result);
-    let _id = result[0]._id;
-    let currentCredit = result[0].credits;
-
-    if (currentCredit >= energy) {
-      // balance
-      let options = { new: true };
-      currentCredit = currentCredit - energy;
-
-      // console.log(`Catch pokemon`);
-      // console.log(`Balance: ${currentCredit}`);
+router.post('/capture', async (req, res) => {
+  if (req.body.captured === false) {
+    try {
+      let _id = req.body._id;
       let updates = {
-        credits: currentCredit,
-        $push: {
-          pokemonCollection: { pokeid: pokeid, name: pokemonName },
-        },
+        $set: { 'pokeball.pokeballCount': req.body.pokeballCount - 1 },
       };
-      let upd = await userData.findByIdAndUpdate(_id, updates, options);
-      // console.log(upd);
-      res.send({ captured: true, info: upd });
-    } else {
-      res.send({ captured: false });
+      let options = { new: true };
+      let result = await userData.findByIdAndUpdate(_id, updates, options);
+      res
+        .send({
+          deducted: true,
+          success: result,
+        })
+        .status(200);
+    } catch (error) {
+      console.error(error);
     }
+    return;
+  }
+  let _id = req.body._id;
+  // let pokeballCount = req.body.pokeballCount;
+  // let pokeid = req.body.id;
+  // let pokemonName = req.body.pokemonName;
+
+  try {
+    let options = { new: true };
+    let updates = {
+      $set: { 'pokeball.pokeballCount': req.body.pokeballCount - 1 },
+      $push: {
+        pokemonCollection: {
+          pokeid: req.body.pokeid,
+          name: req.body.pokemonName,
+          is_legendary: req.body.is_legendary,
+        },
+      },
+    };
+    let result = await userData.findByIdAndUpdate(_id, updates, options);
+    // console.log(result);
+    res
+      .send({
+        created: true,
+        success: result,
+      })
+      .status(201);
   } catch (error) {
     console.error(error);
   }
