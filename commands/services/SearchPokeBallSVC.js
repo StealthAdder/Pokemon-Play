@@ -10,10 +10,8 @@ const SearchPokeBallSVC = async (client, msg, args, messageArray) => {
 
   // Internal API contact.
   const patchPokeBall = async (payload) => {
-    // console.log(payload);
     let userid = msg.author.id;
     payload.userid = userid;
-    // console.log(payload);
     let backendIp = process.env.backendIp;
 
     let response = await fetch(`${backendIp}/pokemon/pokeball`, {
@@ -28,25 +26,22 @@ const SearchPokeBallSVC = async (client, msg, args, messageArray) => {
 
   // pokeball Function
   const pokeball = async (item) => {
-    console.log(item);
-
     // Fetch from PokeAPI
     const getItems = await fetch(`https://pokeapi.co/api/v2/item/${item}`);
     const ItemsResult = await getItems.json();
-    // // console.log(ItemsResult);
 
     const { category, id, cost, name, sprites } = ItemsResult;
     let value = 2;
     if (category.name === 'standard-balls') {
       value = 1;
     }
-    // console.log(value);
 
     let payload = {
       value: value,
     };
 
     let result = await patchPokeBall({ value });
+
     if (result.addedItem === true) {
       embed
         .setAuthor(
@@ -95,11 +90,9 @@ const SearchPokeBallSVC = async (client, msg, args, messageArray) => {
 
   if (random_boolean) {
     item = specialBalls[Math.floor(Math.random() * specialBalls.length)];
-    // console.log(`specialBalls: ${item}`);
     await pokeball(item);
   } else {
     item = standardBalls[Math.floor(Math.random() * standardBalls.length)];
-    // console.log(`standardBalls: ${item}`);
     await pokeball(item);
   }
 };

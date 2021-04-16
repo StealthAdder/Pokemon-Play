@@ -3,6 +3,11 @@ module.exports.run = async (client, message, args, messageArray) => {
   const { MessageEmbed } = require('discord.js');
   const fetch = require('node-fetch');
   const embed = new MessageEmbed();
+
+  // Import Services
+  const SearchBerrySVC = require('./services/SearchBerrySVC');
+  const SearchPokeBallSVC = require('./services/SearchPokeBallSVC');
+  const GetPokemonSVC = require('./services/GetPokemonSVC');
   // console.log(args);
   // console.log(messageArray);
   const msg = message;
@@ -24,193 +29,211 @@ module.exports.run = async (client, message, args, messageArray) => {
   };
 
   // GET Pokemons
-  const getPokemon = async (PokemonName, credits) => {
-    const api = `https://pokeapi.co/api/v2/pokemon/${PokemonName}`;
-    fetch(api)
-      .then((response) => {
-        return response.json();
-      })
-      .then(async (data) => {
-        // console.log(data);
-        var {
-          sprites,
-          abilities,
-          name,
-          base_experience,
-          types,
-          weight,
-          height,
-          id,
-        } = data;
+  // const getPokemon = async (PokemonName, credits) => {
+  //   const api = `https://pokeapi.co/api/v2/pokemon/${PokemonName}`;
+  //   fetch(api)
+  //     .then((response) => {
+  //       return response.json();
+  //     })
+  //     .then(async (data) => {
+  //       // console.log(data);
+  //       var {
+  //         sprites,
+  //         abilities,
+  //         name,
+  //         base_experience,
+  //         types,
+  //         weight,
+  //         height,
+  //         id,
+  //       } = data;
 
-        var powers = [];
-        for (i of types) {
-          let type = i.type.name;
-          powers.push(type);
-        }
-        weight = weight / 10;
-        height = height / 10;
-        const pokemonName = name;
-        // Energy to catch the pokemon
-        const energy = Math.floor(base_experience + weight / height);
-        // console.log(energy);
+  //       var powers = [];
+  //       for (i of types) {
+  //         let type = i.type.name;
+  //         powers.push(type);
+  //       }
+  //       weight = weight / 10;
+  //       height = height / 10;
+  //       const pokemonName = name;
+  //       // Energy to catch the pokemon
+  //       const energy = Math.floor(base_experience + weight / height);
+  //       // console.log(energy);
 
-        if (credits <= energy) {
-          var energylvlmsg = `⚠️Low Energy Level: ${credits}.\nIt's a risk to catch the pokémon now!`;
-        } else {
-          energylvlmsg = `You're Energy Level: ${credits}.\nTry to catch this pokémon!`;
-        }
+  //       if (credits <= energy) {
+  //         var energylvlmsg = `⚠️Low Energy Level: ${credits}.\nIt's a risk to catch the pokémon now!`;
+  //       } else {
+  //         energylvlmsg = `You're Energy Level: ${credits}.\nTry to catch this pokémon!`;
+  //       }
 
-        embed
-          .setAuthor(
-            '⚡Poké Ball Ready!⚡',
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-          )
-          .setImage(sprites.front_default)
-          .setTitle('Found one pokémon near you!!!')
-          .setDescription(
-            `Name: **${name.toUpperCase()}**\nBase Experience: **${base_experience}**\nBest-Ability: **${abilities[0].ability.name.toUpperCase()}**\nWeight: **${weight} lbs**\nHeight: **${height} m**\nType: **${powers
-              .toString()
-              .toUpperCase()}**\nEnergy Needed to Catch: **${energy}**`
-          )
-          .setColor(
-            `#${Math.floor((Math.random() * 0xffffff) << 0)
-              .toString(16)
-              .padStart(6, '0')}`
-          )
-          .setFooter(`${energylvlmsg}`, msg.author.avatarURL());
+  //       embed
+  //         .setAuthor(
+  //           '⚡Poké Ball Ready!⚡',
+  //           'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+  //         )
+  //         .setImage(sprites.front_default)
+  //         .setTitle('Found one pokémon near you!!!')
+  //         .setDescription(
+  //           `Name: **${name.toUpperCase()}**\nBase Experience: **${base_experience}**\nBest-Ability: **${abilities[0].ability.name.toUpperCase()}**\nWeight: **${weight} lbs**\nHeight: **${height} m**\nType: **${powers
+  //             .toString()
+  //             .toUpperCase()}**\nEnergy Needed to Catch: **${energy}**`
+  //         )
+  //         .setColor(
+  //           `#${Math.floor((Math.random() * 0xffffff) << 0)
+  //             .toString(16)
+  //             .padStart(6, '0')}`
+  //         )
+  //         .setFooter(`${energylvlmsg}`, msg.author.avatarURL());
 
-        let seed = await msg.channel.send(embed);
-        await seed.react('<:PokeBall:829788143796224020>');
-        await seed.react('❌');
-        // console.log(seed);
-        var channelid = seed.channel.id;
-        var messageid = seed.id;
-        // console.log(channelid);
-        // console.log(messageid);
+  //       let seed = await msg.channel.send(embed);
+  //       await seed.react('<:PokeBall:829788143796224020>');
+  //       await seed.react('❌');
+  //       // console.log(seed);
+  //       var channelid = seed.channel.id;
+  //       var messageid = seed.id;
+  //       // console.log(channelid);
+  //       // console.log(messageid);
 
-        // ************ MAGIC Reaction Code ********
-        client.on('messageReactionAdd', async (reaction, user) => {
-          if (reaction.message.partial) await reaction.message.fetch();
-          if (reaction.partial) await reaction.fetch();
-          if (user.bot) return;
-          if (user.id === msg.author.id) {
-            // console.log(msg.author.id);
-            // console.log(user.id);
-            if (reaction.message.channel.id === channelid) {
-              if (reaction.message.id === messageid) {
-                if (reaction.emoji.name === 'PokeBall') {
-                  const energize = async (info) => {
-                    let result = await fetch(`${backendIp}/pokemon/energize`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify(info),
-                    });
-                    const energizeRes = await result.json();
-                    if (energizeRes.captured === false) {
-                      embed
-                        .setAuthor(
-                          `⚠️Low Energy Level!`,
-                          ''
-                          // https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png
-                        )
-                        .setImage(sprites.front_default)
-                        .setTitle('Catch failed!')
-                        .setDescription(
-                          `**<@${
-                            user.id
-                          }> Couldn't capture ${pokemonName.toUpperCase()}, It Escaped!!!\n\n Hint: Use \`?poke energy\` To grab a snack!!**`
-                        )
-                        .setColor(
-                          `#${Math.floor(Math.random() * 16777215).toString(
-                            16
-                          )}`
-                        )
-                        .setFooter(
-                          `pokémon Bot`,
-                          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-                        );
-                    } else {
-                      if (energizeRes.captured === true) {
-                        embed
-                          .setAuthor(
-                            `⚡Nice Work ${user.username}⚡`,
-                            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-                          )
-                          .setImage(sprites.front_default)
-                          .setTitle(`${pokemonName.toUpperCase()} Captured`)
-                          .setDescription(
-                            `**You have captured ${pokemonName.toUpperCase()} successfully.\nSpent Energy: ${energy}\nRemaining Energy: ${
-                              energizeRes.info.credits
-                            }**`
-                          )
-                          .setColor(
-                            `#${Math.floor((Math.random() * 0xffffff) << 0)
-                              .toString(16)
-                              .padStart(6, '0')}`
-                          )
-                          .setFooter(
-                            `pokémon Bot`,
-                            'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-                          );
-                      }
-                    }
-                    msg.channel.send(embed);
-                    reaction.message.delete({ timeout: 750 });
-                  };
-                  energize({ id, energy, userid, pokemonName });
-                }
-                if (reaction.emoji.name === '❌') {
-                  reaction.message.delete();
-                }
-              }
-            }
-          } else {
-            if (reaction.message.channel.id === channelid) {
-              if (reaction.message.id === messageid) {
-                // console.log(user.id);
-                embed
-                  .setAuthor(
-                    // ${pokemonName} Attacked you!
-                    `${pokemonName.toUpperCase()} Attacked you!!`,
-                    sprites.front_default
-                  )
-                  .setImage(
-                    'https://media.tenor.com/images/e5595f246f5b032e1e7d71ce537d8568/tenor.gif'
-                  )
-                  .setTitle(`⚠️ Trespasser Warned!`)
-                  .setDescription(
-                    `**<@${user.id}> It's not you're pokémon to catch!!!\nAre you one of the Team Rocker Fans! XD**`
-                  )
-                  .setColor(
-                    `#${Math.floor((Math.random() * 0xffffff) << 0)
-                      .toString(16)
-                      .padStart(6, '0')}`
-                  )
-                  .setFooter(
-                    `pokémon Bot`,
-                    'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-                  );
-                let seed = await msg.channel.send(embed);
-                seed.delete({ timeout: 6000 });
-              }
-            }
-          }
-        });
-      });
-  };
+  //       // ************ MAGIC Reaction Code ********
+  //       client.on('messageReactionAdd', async (reaction, user) => {
+  //         if (reaction.message.partial) await reaction.message.fetch();
+  //         if (reaction.partial) await reaction.fetch();
+  //         if (user.bot) return;
+  //         if (user.id === msg.author.id) {
+  //           // console.log(msg.author.id);
+  //           // console.log(user.id);
+  //           if (reaction.message.channel.id === channelid) {
+  //             if (reaction.message.id === messageid) {
+  //               if (reaction.emoji.name === 'PokeBall') {
+  //                 const energize = async (info) => {
+  //                   let result = await fetch(`${backendIp}/pokemon/energize`, {
+  //                     method: 'POST',
+  //                     headers: {
+  //                       'Content-Type': 'application/json',
+  //                     },
+  //                     body: JSON.stringify(info),
+  //                   });
+  //                   const energizeRes = await result.json();
+  //                   if (energizeRes.captured === false) {
+  //                     embed
+  //                       .setAuthor(
+  //                         `⚠️Low Energy Level!`,
+  //                         ''
+  //                         // https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png
+  //                       )
+  //                       .setImage(sprites.front_default)
+  //                       .setTitle('Catch failed!')
+  //                       .setDescription(
+  //                         `**<@${
+  //                           user.id
+  //                         }> Couldn't capture ${pokemonName.toUpperCase()}, It Escaped!!!\n\n Hint: Use \`?poke energy\` To grab a snack!!**`
+  //                       )
+  //                       .setColor(
+  //                         `#${Math.floor(Math.random() * 16777215).toString(
+  //                           16
+  //                         )}`
+  //                       )
+  //                       .setFooter(
+  //                         `pokémon Bot`,
+  //                         'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+  //                       );
+  //                   } else {
+  //                     if (energizeRes.captured === true) {
+  //                       embed
+  //                         .setAuthor(
+  //                           `⚡Nice Work ${user.username}⚡`,
+  //                           'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+  //                         )
+  //                         .setImage(sprites.front_default)
+  //                         .setTitle(`${pokemonName.toUpperCase()} Captured`)
+  //                         .setDescription(
+  //                           `**You have captured ${pokemonName.toUpperCase()} successfully.\nSpent Energy: ${energy}\nRemaining Energy: ${
+  //                             energizeRes.info.credits
+  //                           }**`
+  //                         )
+  //                         .setColor(
+  //                           `#${Math.floor((Math.random() * 0xffffff) << 0)
+  //                             .toString(16)
+  //                             .padStart(6, '0')}`
+  //                         )
+  //                         .setFooter(
+  //                           `pokémon Bot`,
+  //                           'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+  //                         );
+  //                     }
+  //                   }
+  //                   msg.channel.send(embed);
+  //                   reaction.message.delete({ timeout: 750 });
+  //                 };
+  //                 energize({ id, energy, userid, pokemonName });
+  //               }
+  //               if (reaction.emoji.name === '❌') {
+  //                 reaction.message.delete();
+  //               }
+  //             }
+  //           }
+  //         } else {
+  //           if (reaction.message.channel.id === channelid) {
+  //             if (reaction.message.id === messageid) {
+  //               // console.log(user.id);
+  //               embed
+  //                 .setAuthor(
+  //                   // ${pokemonName} Attacked you!
+  //                   `${pokemonName.toUpperCase()} Attacked you!!`,
+  //                   sprites.front_default
+  //                 )
+  //                 .setImage(
+  //                   'https://media.tenor.com/images/e5595f246f5b032e1e7d71ce537d8568/tenor.gif'
+  //                 )
+  //                 .setTitle(`⚠️ Trespasser Warned!`)
+  //                 .setDescription(
+  //                   `**<@${user.id}> It's not you're pokémon to catch!!!\nAre you one of the Team Rocker Fans! XD**`
+  //                 )
+  //                 .setColor(
+  //                   `#${Math.floor((Math.random() * 0xffffff) << 0)
+  //                     .toString(16)
+  //                     .padStart(6, '0')}`
+  //                 )
+  //                 .setFooter(
+  //                   `pokémon Bot`,
+  //                   'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+  //                 );
+  //               let seed = await msg.channel.send(embed);
+  //               seed.delete({ timeout: 6000 });
+  //             }
+  //           }
+  //         }
+  //       });
+  //     });
+  // };
 
   if (args[0] === 'search') {
     if (args[1] === 'item') {
       // console.log(`Pinged`);
-      const SearchPokeBallSVC = require('./services/SearchPokeBallSVC');
       SearchPokeBallSVC(client, msg, args, messageArray);
     }
     if (args[1] === 'berry') {
-      const SearchBerrySVC = require('./services/SearchBerrySVC');
       SearchBerrySVC(client, msg, args, messageArray);
+    }
+  }
+
+  if (args[0] === 'encounter') {
+    // Check if user exists.
+    let userid = msg.author.id;
+    let signinRes = await checkSignIn({ userid });
+    // console.log(signinRes);
+
+    if (signinRes.exists === true) {
+      let pokeballCount = signinRes.info[0].pokeball.pokeballCount;
+      let _id = signinRes.info[0]._id;
+      let userid = signinRes.info[0].userid;
+
+      let payload = {
+        _id: _id,
+        pokeballCount: pokeballCount,
+        userid: userid,
+      };
+      GetPokemonSVC(client, msg, args, messageArray, payload);
     }
   }
 
@@ -299,40 +322,6 @@ module.exports.run = async (client, message, args, messageArray) => {
         }
       }
     });
-  } else if (args[0] === 'search' && args[1] === 'pokemon') {
-    // RANDOM POKEMON TO COLLECT
-
-    // check if the user is a member
-    let userid = msg.author.id;
-    let signinRes = await checkSignIn({ userid });
-    // console.log(signinRes);
-
-    if (signinRes.exists === true) {
-      let credits = signinRes.info[0].credits;
-      // console.log(credits);
-      let PokemonName = Math.floor(Math.random() * (898 - 1 + 1)) + 1;
-      getPokemon(PokemonName, credits);
-      // console.log(PokemonName);
-    } else {
-      embed
-        .setDescription(
-          "**It seems you are lost in the wild.\nLet's get you you're Trainer ID.\nThis ID helps universe to know you're collections and credit Information\n Let's start by Sending.**\n`?poke signup`"
-        )
-        .setAuthor(
-          `Welcome ${msg.author.username}!`,
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-        )
-        .setColor(
-          `#${Math.floor((Math.random() * 0xffffff) << 0)
-            .toString(16)
-            .padStart(6, '0')}`
-        )
-        .setFooter(
-          `pokémon Bot`,
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-        );
-      msg.channel.send(embed);
-    }
   } else if (args[0] === 'help') {
     // HELP command
     let userid = msg.author.id;
