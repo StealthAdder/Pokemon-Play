@@ -4,6 +4,9 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
   const embed = new MessageEmbed();
   const backendIp = process.env.backendIp;
 
+  // warning Memory Leak
+  client.setMaxListeners(100);
+
   // Imports
   const SSOCheck = require('./SSOCheck');
 
@@ -13,6 +16,22 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
   //   );
   //   return (await getPokemon).json();
   // };
+
+  embed
+    .setAuthor(
+      '⚡Poké Ball Ready!⚡',
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+    )
+    .setTitle(`Searching...!!!`)
+    .setImage(
+      'https://25.media.tumblr.com/6de335942863f4332108be56873c8d60/tumblr_mle5hllPOD1qevd8wo1_500.gif'
+    )
+    .setColor(
+      `#${Math.floor((Math.random() * 0xffffff) << 0)
+        .toString(16)
+        .padStart(6, '0')}`
+    );
+  let initSeed = await msg.channel.send(embed);
   let PokemonName = Math.floor(Math.random() * (898 - 1 + 1)) + 1;
 
   const getPokemon = await fetch(
@@ -71,13 +90,41 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
         .padStart(6, '0')}`
     )
     .setFooter(`React 💠 to Catch & ❌ to Ignore`, msg.author.avatarURL());
-  let seed = await msg.channel.send(embed);
+  let seed = await initSeed.edit(embed);
+  // let seed = await msg.channel.send(embed);
   await seed.react('💠');
   await seed.react('❌');
   var channelid = seed.channel.id;
   var messageid = seed.id;
   // console.log(channelid);
   // console.log(messageid);
+
+  // DELETE Un-Reacted Embeds
+  let kill = true;
+  let delSeed = async () => {
+    if (kill) {
+      let delSeedEmbed = new MessageEmbed();
+      delSeedEmbed
+        .setAuthor(
+          `Hey ${msg.author.username}`,
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+        )
+        .setImage(sprites.front_default)
+        .setTitle(`Took a lot of time.`)
+        .addField(`Reason`, `⚠️**Timeout** : 15 second passed\n`)
+        .setDescription(`${name.toUpperCase()} Escaped!`)
+        .setColor(
+          `#${Math.floor((Math.random() * 0xffffff) << 0)
+            .toString(16)
+            .padStart(6, '0')}`
+        );
+      await seed.delete();
+      await msg.channel.send(delSeedEmbed);
+      // console.log('delSeed Triggered after 15 sec');
+    }
+  };
+  // 15 seconds
+  setTimeout(delSeed, 15000);
 
   client.on('messageReactionAdd', async (reaction, user) => {
     if (reaction.message.partial) await reaction.message.fetch();
@@ -88,6 +135,7 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
       if (reaction.message.channel.id === channelid) {
         if (reaction.message.id === messageid) {
           if (reaction.emoji.name === '💠') {
+            kill = false;
             // SSO Check
             let userid = payload.userid;
             let ssoRes = await SSOCheck({ userid });
@@ -113,8 +161,8 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
                     .toString(16)
                     .padStart(6, '0')}`
                 );
+              await seed.delete();
               await msg.channel.send(resEmbed);
-              await seed.delete({ timeout: 250 });
               return;
             }
 
