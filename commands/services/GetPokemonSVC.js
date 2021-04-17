@@ -7,25 +7,33 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
   // Imports
   const SSOCheck = require('./SSOCheck');
 
-  const fetchPokemon = async (PokemonName) => {
-    const getPokemon = fetch(
-      `https://pokeapi.co/api/v2/pokemon/${PokemonName}`
-    );
-    return (await getPokemon).json();
-  };
-
-  const fetchPokemonSpecies = async (PokemonName) => {
-    const getPokemonSpecies = fetch(
-      `https://pokeapi.co/api/v2/pokemon-species/${PokemonName}`
-    );
-    return (await getPokemonSpecies).json();
-  };
-
+  // const fetchPokemon = async (PokemonName) => {
+  //   const getPokemon = fetch(
+  //     `https://pokeapi.co/api/v2/pokemon/${PokemonName}`
+  //   );
+  //   return (await getPokemon).json();
+  // };
   let PokemonName = Math.floor(Math.random() * (898 - 1 + 1)) + 1;
 
-  let pokemonRes = await fetchPokemon(PokemonName);
+  const getPokemon = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/${PokemonName}`
+  );
+
+  // const fetchPokemonSpecies = async (PokemonName) => {
+  //   const getPokemonSpecies = fetch(
+  //     `https://pokeapi.co/api/v2/pokemon-species/${PokemonName}`
+  //   );
+  //   return (await getPokemonSpecies).json();
+  // };
+  const getPokemonSpecies = await fetch(
+    `https://pokeapi.co/api/v2/pokemon-species/${PokemonName}`
+  );
+
+  // let pokemonRes = await fetchPokemon(PokemonName);
+  let pokemonRes = await getPokemon.json();
   // console.log(pokemonRes);
-  let pokemonSpeciesRes = await fetchPokemonSpecies(PokemonName);
+  // let pokemonSpeciesRes = await fetchPokemonSpecies(PokemonName);
+  let pokemonSpeciesRes = await getPokemonSpecies.json();
   // console.log(pokemonSpeciesRes);
 
   var { sprites, name, abilities, id, base_experience } = pokemonRes;
@@ -206,12 +214,41 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
           }
 
           if (reaction.emoji.name === '❌') {
-            console.log(`Ignored`);
+            await seed.delete();
           }
         }
       }
     } else {
       // somebody else reacted
+      if (reaction.message.channel.id === channelid) {
+        if (reaction.message.id === messageid) {
+          // console.log(user.id);
+          embed
+            .setAuthor(
+              // ${pokemonName} Attacked you!
+              `${name.toUpperCase()} Attacked you!!`,
+              sprites.front_default
+            )
+            .setImage(
+              'https://media.tenor.com/images/e5595f246f5b032e1e7d71ce537d8568/tenor.gif'
+            )
+            .setTitle(`⚠️ Trespasser Warned!`)
+            .setDescription(
+              `**<@${user.id}> It's not you're pokémon to catch!!!\nAre you one of the Team Rocker Fans! XD**`
+            )
+            .setColor(
+              `#${Math.floor((Math.random() * 0xffffff) << 0)
+                .toString(16)
+                .padStart(6, '0')}`
+            )
+            .setFooter(
+              `pokémon Bot`,
+              'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+            );
+          let seed = await msg.channel.send(embed);
+          seed.delete({ timeout: 6000 });
+        }
+      }
     }
   });
 };

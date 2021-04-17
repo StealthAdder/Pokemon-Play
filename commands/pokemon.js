@@ -174,35 +174,7 @@ module.exports.run = async (client, message, args, messageArray) => {
   //             }
   //           }
   //         } else {
-  //           if (reaction.message.channel.id === channelid) {
-  //             if (reaction.message.id === messageid) {
-  //               // console.log(user.id);
-  //               embed
-  //                 .setAuthor(
-  //                   // ${pokemonName} Attacked you!
-  //                   `${pokemonName.toUpperCase()} Attacked you!!`,
-  //                   sprites.front_default
-  //                 )
-  //                 .setImage(
-  //                   'https://media.tenor.com/images/e5595f246f5b032e1e7d71ce537d8568/tenor.gif'
-  //                 )
-  //                 .setTitle(`⚠️ Trespasser Warned!`)
-  //                 .setDescription(
-  //                   `**<@${user.id}> It's not you're pokémon to catch!!!\nAre you one of the Team Rocker Fans! XD**`
-  //                 )
-  //                 .setColor(
-  //                   `#${Math.floor((Math.random() * 0xffffff) << 0)
-  //                     .toString(16)
-  //                     .padStart(6, '0')}`
-  //                 )
-  //                 .setFooter(
-  //                   `pokémon Bot`,
-  //                   'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-  //                 );
-  //               let seed = await msg.channel.send(embed);
-  //               seed.delete({ timeout: 6000 });
-  //             }
-  //           }
+  //
   //         }
   //       });
   //     });
