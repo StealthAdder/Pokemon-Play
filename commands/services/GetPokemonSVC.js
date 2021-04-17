@@ -4,6 +4,9 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
   const embed = new MessageEmbed();
   const backendIp = process.env.backendIp;
 
+  // Imports
+  const SSOCheck = require('./SSOCheck');
+
   const fetchPokemon = async (PokemonName) => {
     const getPokemon = fetch(
       `https://pokeapi.co/api/v2/pokemon/${PokemonName}`
@@ -50,11 +53,6 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
     )
     .setImage(sprites.front_default)
     .setTitle(`Found one pokémon near ${area}!!!`)
-    // .setDescription(
-    //   `Name: **${name.toUpperCase()}**\nBase Experience: **${base_experience}**\nBest-Ability: **${abilities[0].ability.name.toUpperCase()}**\nWeight: **${weight} lbs**\nHeight: **${height} m**\nType: **${powers
-    //     .toString()
-    //     .toUpperCase()}**\nEnergy Needed to Catch: **${energy}**`
-    // )
     .addField(
       `${name.toUpperCase()}`,
       `**Best-Ability** : ${abilities[0].ability.name.toUpperCase()}\n**Capture Rate** : ${capture_rate}%\n**Legendary** : ${is_legendary}\n**Base Happiness** :${base_happiness}\n`
@@ -82,9 +80,14 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
       if (reaction.message.channel.id === channelid) {
         if (reaction.message.id === messageid) {
           if (reaction.emoji.name === '💠') {
+            // SSO Check
+            let userid = payload.userid;
+            let ssoRes = await SSOCheck({ userid });
+            // console.log(ssoRes);
+
             // Check for PokeBall
             let resEmbed = new MessageEmbed();
-            if (payload.pokeballCount === 0) {
+            if (ssoRes.info[0].pokeball.pokeballCount === 0) {
               resEmbed
                 .setAuthor(
                   `Hey ${user.username}`,
@@ -94,7 +97,7 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
                 .setTitle(`Capture attempt failed!`)
                 .addField(
                   `Reason`,
-                  `⚠️**PokeBall** : ${payload.pokeballCount}\n`
+                  `⚠️**PokeBall** : ${ssoRes.info[0].pokeball.pokeballCount}\n`
                 )
                 .setDescription(`${name.toUpperCase()} Escaped!`)
                 .setColor(
@@ -116,6 +119,7 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
             // capture_rate <= 45 && base_happiness < 70
             if (capture_rate <= 45 && base_happiness < 70) {
               payload.captured = false;
+              payload.pokeballCount = ssoRes.info[0].pokeball.pokeballCount;
               let deductPokeball = await fetch(`${backendIp}/pokemon/capture`, {
                 method: 'POST',
                 headers: {
@@ -159,6 +163,7 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
             payload.captured = true;
             payload.pokeid = id;
             payload.is_legendary = is_legendary;
+            payload.pokeballCount = ssoRes.info[0].pokeball.pokeballCount;
             // console.log(payload);
 
             const captured = await fetch(`${backendIp}/pokemon/capture`, {

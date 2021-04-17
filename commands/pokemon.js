@@ -8,6 +8,7 @@ module.exports.run = async (client, message, args, messageArray) => {
   const SearchBerrySVC = require('./services/SearchBerrySVC');
   const SearchPokeBallSVC = require('./services/SearchPokeBallSVC');
   const GetPokemonSVC = require('./services/GetPokemonSVC');
+  const SSOCheck = require('./services/SSOCheck');
   // console.log(args);
   // console.log(messageArray);
   const msg = message;
@@ -17,16 +18,16 @@ module.exports.run = async (client, message, args, messageArray) => {
   const userid = msg.author.id;
 
   // SignIn Checker
-  const checkSignIn = async (info) => {
-    let result = await fetch(`${backendIp}/pokemon/signin`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(info),
-    });
-    return await result.json();
-  };
+  // const SSOCheck = async (info) => {
+  //   let result = await fetch(`${backendIp}/pokemon/signin`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify(info),
+  //   });
+  //   return await result.json();
+  // };
 
   // GET Pokemons
   // const getPokemon = async (PokemonName, credits) => {
@@ -220,7 +221,7 @@ module.exports.run = async (client, message, args, messageArray) => {
   if (args[0] === 'encounter') {
     // Check if user exists.
     let userid = msg.author.id;
-    let signinRes = await checkSignIn({ userid });
+    let signinRes = await SSOCheck({ userid });
     // console.log(signinRes);
 
     if (signinRes.exists === true) {
@@ -230,7 +231,6 @@ module.exports.run = async (client, message, args, messageArray) => {
 
       let payload = {
         _id: _id,
-        pokeballCount: pokeballCount,
         userid: userid,
       };
       GetPokemonSVC(client, msg, args, messageArray, payload);
@@ -273,7 +273,7 @@ module.exports.run = async (client, message, args, messageArray) => {
           if (reaction.message.id === messageid) {
             if (reaction.emoji.name === '✅') {
               let userid = msg.author.id;
-              let signinRes = await checkSignIn({ userid });
+              let signinRes = await SSOCheck({ userid });
 
               if (signinRes.exists === true) {
                 embed
@@ -327,7 +327,7 @@ module.exports.run = async (client, message, args, messageArray) => {
     let userid = msg.author.id;
     // check if the user is a member
 
-    let signinRes = await checkSignIn({ userid });
+    let signinRes = await SSOCheck({ userid });
     // console.log(signinRes);
     if (signinRes.exists === true) {
       // let credits = signinRes.info[0].credits;
@@ -376,7 +376,7 @@ module.exports.run = async (client, message, args, messageArray) => {
     let userid = msg.author.id;
     // check if the user is a member
     let rechargeEmbed = new MessageEmbed();
-    let signinRes = await checkSignIn({ userid });
+    let signinRes = await SSOCheck({ userid });
     // console.log(signinRes);
     if (signinRes.exists === true) {
       rechargeEmbed
