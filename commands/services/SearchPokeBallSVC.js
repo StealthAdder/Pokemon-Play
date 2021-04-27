@@ -66,22 +66,6 @@ const SearchPokeBallSVC = async (client, msg, args, messageArray) => {
     }
   };
 
-  // const noPokeBall = () => {
-  //   embed
-  //     .setAuthor(
-  //       `Hey ${msg.author.username}`,
-  //       'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-  //     )
-  //     .setDescription(`**Found Nothing**`)
-  //     .setColor(
-  //       `#${Math.floor((Math.random() * 0xffffff) << 0)
-  //         .toString(16)
-  //         .padStart(6, '0')}`
-  //     );
-
-  //   let seed = msg.channel.send(embed);
-  // };
-
   let specialBalls = [7, 10, 13, 11, 8, 617, 6, 15, 9, 887, 16, 12, 14];
   let standardBalls = [4, 2, 1, 457, 5, 456, 3];
 

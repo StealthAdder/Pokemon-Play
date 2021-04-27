@@ -5,7 +5,7 @@ const userData = require('../models/userData');
 
 // findUserData
 const FindUserData = async (userid) => {
-  console.log(userid);
+  // console.log(userid);
   return await userData.find({ userid: userid });
 };
 
