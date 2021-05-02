@@ -32,6 +32,16 @@ const userDataSchema = new mongoose.Schema({
       default: 10,
     },
   },
+  berry: {
+    berryCount: {
+      type: Number,
+      default: 2,
+    },
+    limit: {
+      type: Number,
+      default: 10,
+    },
+  },
   xp: {
     type: Number,
     default: 0,

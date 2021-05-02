@@ -36,9 +36,9 @@ const SearchPokeBallSVC = async (client, msg, args, messageArray) => {
       value = 1;
     }
 
-    let payload = {
-      value: value,
-    };
+    // let payload = {
+    //   value: value,
+    // };
 
     let result = await patchPokeBall({ value });
 

@@ -58,7 +58,7 @@ router.post('/signin', async (req, res) => {
   }
 });
 
-//Catch Pokemon by using energy!
+//Catch Pokemon by using pokeball
 router.post('/capture', async (req, res) => {
   if (req.body.captured === false) {
     try {
@@ -155,6 +155,10 @@ router.post('/pokeball', async (req, res) => {
       addedItem: false,
     });
   }
+});
+
+router.post('/berry', async (req, res) => {
+  console.log(req.body);
 });
 
 module.exports = router;
