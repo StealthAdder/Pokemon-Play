@@ -9,7 +9,6 @@ const SearchBerrySVC = async (client, msg, args, messageArray) => {
   let channelid = msg.channel.id;
   let backendIp = process.env.backendIp;
   let randomBerry = Math.floor(Math.random() * (64 - 1 + 1));
-  console.log(randomBerry);
 
   // Internal API Contact
   const patchBerry = async (payload) => {
@@ -30,9 +29,33 @@ const SearchBerrySVC = async (client, msg, args, messageArray) => {
     );
     const berryResult = await getBerry.json();
     let berryName = berryResult.item.name;
-    let result = await patchBerry({ berryName });
+    let userid = msg.author.id;
 
-    // if result addedBerry ==== true
+    let berryCountRes = await patchBerry({ berryName, userid });
+
+    if (berryCountRes.addedBerry === true) {
+      let sprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${berryName}.png`;
+      embed
+        .setAuthor(
+          `Hey ${msg.author.username}`,
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+        )
+        .setImage(sprite)
+        .addField(
+          'In the wild search we found',
+          `**Item** : **${berryName.toUpperCase()}**`
+        )
+        .addField(
+          'ℹ️ Inventory Update',
+          `Now you have got **${berryCountRes.info.berry.berryCount}** Berries!`
+        )
+        .setColor(
+          `#${Math.floor((Math.random() * 0xffffff) << 0)
+            .toString(16)
+            .padStart(6, '0')}`
+        );
+      await msg.channel.send(embed);
+    }
   };
   await berry(randomBerry);
 };

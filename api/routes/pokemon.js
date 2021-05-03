@@ -158,7 +158,28 @@ router.post('/pokeball', async (req, res) => {
 });
 
 router.post('/berry', async (req, res) => {
-  console.log(req.body);
+  const { userid, berryName } = req.body;
+  let result = await FindUserData(userid);
+
+  let _id = result[0]._id;
+  let currentBerryCount = result[0].berry.berryCount;
+  let updates = {
+    $set: { 'berry.berryCount': currentBerryCount + 1 },
+  };
+  let options = { new: true };
+
+  let chgberryCount = await userData.findByIdAndUpdate(_id, updates, options);
+
+  if (Object.keys(chgberryCount).length > 0) {
+    res.send({
+      addedBerry: true,
+      info: chgberryCount,
+    });
+  } else {
+    res.send({
+      addedBerry: false,
+    });
+  }
 });
 
 module.exports = router;
