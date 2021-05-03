@@ -8,6 +8,7 @@ module.exports.run = async (client, message, args, messageArray) => {
   const SearchBerrySVC = require('./services/SearchBerrySVC');
   const SearchPokeBallSVC = require('./services/SearchPokeBallSVC');
   const GetPokemonSVC = require('./services/GetPokemonSVC');
+  const InventorySVC = require('./services/InventorySVC');
   const SSOCheck = require('./services/SSOCheck');
   const SignUpSVC = require('./services/SignUpSVC');
   // console.log(args);
@@ -63,6 +64,12 @@ module.exports.run = async (client, message, args, messageArray) => {
         };
         GetPokemonSVC(client, msg, args, messageArray, payload);
       }
+    }
+
+    // Inventory
+    if (args[0] === 'inv') {
+      // Internal API call to get Info from DB.
+      InventorySVC(client, msg, args, messageArray);
     }
 
     // Help Command

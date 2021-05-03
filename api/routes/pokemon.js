@@ -109,33 +109,31 @@ router.post('/capture', async (req, res) => {
   }
 });
 
-router.post('/getEnergy', async (req, res) => {
-  try {
-    let result = await userData.find({ userid: req.body.userid });
-    // console.log(result[0]._id);
-    let _id = result[0]._id;
-    let currentCredit = result[0].credits;
-    // console.log(currentCredit);
-    let updates = {
-      credits: currentCredit + 200,
-    };
-    let options = { new: true };
-    let changeEnergy = await userData.findByIdAndUpdate(_id, updates, options);
-    res.send({
-      recharged: true,
-      info: changeEnergy,
-    });
-  } catch (error) {
-    console.error(error);
-  }
-});
+// router.post('/getEnergy', async (req, res) => {
+//   try {
+//     let result = await userData.find({ userid: req.body.userid });
+//     // console.log(result[0]._id);
+//     let _id = result[0]._id;
+//     let currentCredit = result[0].credits;
+//     // console.log(currentCredit);
+//     let updates = {
+//       credits: currentCredit + 200,
+//     };
+//     let options = { new: true };
+//     let changeEnergy = await userData.findByIdAndUpdate(_id, updates, options);
+//     res.send({
+//       recharged: true,
+//       info: changeEnergy,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//   }
+// });
 
 router.post('/pokeball', async (req, res) => {
   // console.log(req.body);
   const { userid, value } = req.body;
-
   let result = await FindUserData(userid);
-
   let _id = result[0]._id;
   let currentpokeball = result[0].pokeball.pokeballCount;
   let updates = {
@@ -143,24 +141,27 @@ router.post('/pokeball', async (req, res) => {
   };
   let options = { new: true };
 
-  let chgPokeBall = await userData.findByIdAndUpdate(_id, updates, options);
-  // console.log(typeof chgPokeBall);
-  if (Object.keys(chgPokeBall).length > 0) {
-    res.send({
-      addedItem: true,
-      info: chgPokeBall,
-    });
-  } else {
-    res.send({
-      addedItem: false,
-    });
+  try {
+    let chgPokeBall = await userData.findByIdAndUpdate(_id, updates, options);
+    // console.log(typeof chgPokeBall);
+    if (Object.keys(chgPokeBall).length > 0) {
+      res.send({
+        addedItem: true,
+        info: chgPokeBall,
+      });
+    } else {
+      res.send({
+        addedItem: false,
+      });
+    }
+  } catch (error) {
+    console.log(error);
   }
 });
 
 router.post('/berry', async (req, res) => {
   const { userid, berryName } = req.body;
   let result = await FindUserData(userid);
-
   let _id = result[0]._id;
   let currentBerryCount = result[0].berry.berryCount;
   let updates = {
@@ -168,16 +169,36 @@ router.post('/berry', async (req, res) => {
   };
   let options = { new: true };
 
-  let chgberryCount = await userData.findByIdAndUpdate(_id, updates, options);
+  try {
+    let chgberryCount = await userData.findByIdAndUpdate(_id, updates, options);
 
-  if (Object.keys(chgberryCount).length > 0) {
+    if (Object.keys(chgberryCount).length > 0) {
+      res.send({
+        addedBerry: true,
+        info: chgberryCount,
+      });
+    } else {
+      res.send({
+        addedBerry: false,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post('/inv', async (req, res) => {
+  const { userid } = req.body;
+  let result = await FindUserData(userid);
+
+  if (Object.keys(result).length > 0) {
     res.send({
-      addedBerry: true,
-      info: chgberryCount,
+      exists: true,
+      info: result,
     });
   } else {
     res.send({
-      addedBerry: false,
+      exists: false,
     });
   }
 });
