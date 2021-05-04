@@ -90,7 +90,7 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
         .padStart(6, '0')}`
     )
     .setFooter(`React 💠 to Catch & ❌ to Ignore`, msg.author.avatarURL());
-  let seed = await initSeed.edit(embed);
+  const seed = await initSeed.edit(embed);
   // let seed = await msg.channel.send(embed);
   await seed.react('💠');
   await seed.react('❌');
@@ -262,6 +262,7 @@ const GetPokemonSVC = async (client, msg, args, messageArray, payload) => {
           }
 
           if (reaction.emoji.name === '❌') {
+            kill = false;
             await seed.delete();
           }
         }

@@ -31,7 +31,7 @@ const InventorySVC = async (client, msg, args, messageArray) => {
       )
       .addField(
         'ℹ️Inventory Information',
-        `**Trainer Name**: ${msg.author.username}\n**XP Level**: ${xp}\n**PokeBall Count**: ${pokeball.pokeballCount}\n**Berries**: ${berry.berryCount}\n**Pokemon collected**: ${pokemonCollection.length}`
+        `**Trainer Name**: ${msg.author.username}\n**PokeBall Count**: ${pokeball.pokeballCount}\n**Berries**: ${berry.berryCount}\n**Pokemon collected**: ${pokemonCollection.length}`
       )
       .setColor(
         `#${Math.floor((Math.random() * 0xffffff) << 0)
