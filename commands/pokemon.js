@@ -28,6 +28,26 @@ module.exports.run = async (client, message, args, messageArray) => {
         userid: userid,
       };
       SignUpSVC(client, msg, args, messageArray, payload);
+    } else {
+      embed
+        .setDescription(
+          "**It seems you are lost in the wild.\nLet's get you you're Trainer ID.\nThis ID helps universe to know you're collections and Inventory Information\n Let's start by Sending.**\n`?poke signup`"
+        )
+        .setAuthor(
+          'Hello Trainer!',
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+        )
+        .setTitle('⚠️Trainer Auth Failure')
+        .setColor(
+          `#${Math.floor((Math.random() * 0xffffff) << 0)
+            .toString(16)
+            .padStart(6, '0')}`
+        )
+        .setFooter(
+          `pokémon Bot`,
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
+        );
+      msg.channel.send(embed);
     }
   }
 
@@ -96,26 +116,6 @@ module.exports.run = async (client, message, args, messageArray) => {
         );
       msg.channel.send(embed);
     }
-  } else {
-    embed
-      .setDescription(
-        "**It seems you are lost in the wild.\nLet's get you you're Trainer ID.\nThis ID helps universe to know you're collections and Inventory Information\n Let's start by Sending.**\n`?poke signup`"
-      )
-      .setAuthor(
-        'Hello Trainer!',
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-      )
-      .setTitle('⚠️Trainer Auth Failure')
-      .setColor(
-        `#${Math.floor((Math.random() * 0xffffff) << 0)
-          .toString(16)
-          .padStart(6, '0')}`
-      )
-      .setFooter(
-        `pokémon Bot`,
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
-      );
-    msg.channel.send(embed);
   }
 };
 module.exports.help = {

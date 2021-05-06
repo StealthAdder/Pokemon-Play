@@ -26,11 +26,11 @@ const InventorySVC = async (client, msg, args, messageArray) => {
     let { pokeball, berry, xp, pokemonCollection } = getInvRes.info[0];
     embed
       .setAuthor(
-        `Hey ${msg.author.username}`,
+        `Hey Trainer`,
         'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1026px-Pok%C3%A9_Ball_icon.svg.png'
       )
       .addField(
-        'ℹ️Inventory Information',
+        'ℹ️ Inventory Information',
         `**Trainer Name**: ${msg.author.username}\n**PokeBall Count**: ${pokeball.pokeballCount}\n**Berries**: ${berry.berryCount}\n**Pokemon collected**: ${pokemonCollection.length}`
       )
       .setColor(
