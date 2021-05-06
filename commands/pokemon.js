@@ -98,7 +98,7 @@ module.exports.run = async (client, message, args, messageArray) => {
       // HELP command
       embed
         .setDescription(
-          "**`?poke signup` Quickly Join the Pokémon Journey.\n\n`?poke search` Search for Pokémon near you & try to capture by using PokéBall.\n\n`?poke item` Search for pokéball & berries in the wild, PokéBall is very important in you're quest to capture pokémon's.\n\n`?poke inv` 🛠️Get Information of Inventory,\ni.e. Pokéball count, Pokémon Collections, Supplies, etc.**"
+          "**`?poke signup` Quickly Join the Pokémon Journey.\n\n`?poke search` Search for Pokémon near you & try to capture by using PokéBall.\n\n`?poke item` Search for pokéball & berries in the wild, PokéBall is very important in you're quest to capture pokémon's.\n\n`?poke inv` Get Information of Inventory,\ni.e. Pokéball count, Pokémon Collections, Supplies, etc.**"
         )
         .setColor(
           `#${Math.floor((Math.random() * 0xffffff) << 0)
