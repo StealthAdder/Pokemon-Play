@@ -1,6 +1,17 @@
 const express = require('express');
+const { rawListeners } = require('../models/userData');
 const router = express.Router();
 const userData = require('../models/userData');
+
+// findUserData
+const FindUserData = async (userid) => {
+  // console.log(userid);
+  return await userData.find({ userid: userid });
+};
+
+router.get('/', async (req, res) => {
+  res.send({ msg: 'API Up and Running.' }).status(200);
+});
 
 // SIGN UP
 router.post('/signup', async (req, res) => {
@@ -47,63 +58,148 @@ router.post('/signin', async (req, res) => {
   }
 });
 
-//Catch Pokemon by using energy!
-router.post('/energize', async (req, res) => {
-  // console.log(req.body);
-  let pokeid = req.body.id;
-  let pokemonName = req.body.pokemonName;
-  let energy = req.body.energy;
-  // console.log(pokemonName);
-
-  // check the user credits is it sufficient to catch the pokemon.
-  try {
-    let result = await userData.find({ userid: req.body.userid });
-    // console.log(result);
-    let _id = result[0]._id;
-    let currentCredit = result[0].credits;
-
-    if (currentCredit >= energy) {
-      // balance
-      let options = { new: true };
-      currentCredit = currentCredit - energy;
-
-      // console.log(`Catch pokemon`);
-      // console.log(`Balance: ${currentCredit}`);
+//Catch Pokemon by using pokeball
+router.post('/capture', async (req, res) => {
+  if (req.body.captured === false) {
+    try {
+      let _id = req.body._id;
       let updates = {
-        credits: currentCredit,
-        $push: {
-          pokemonCollection: { pokeid: pokeid, name: pokemonName },
-        },
+        $set: { 'pokeball.pokeballCount': req.body.pokeballCount - 1 },
       };
-      let upd = await userData.findByIdAndUpdate(_id, updates, options);
-      // console.log(upd);
-      res.send({ captured: true, info: upd });
-    } else {
-      res.send({ captured: false });
+      let options = { new: true };
+      let result = await userData.findByIdAndUpdate(_id, updates, options);
+      res
+        .send({
+          deducted: true,
+          success: result,
+        })
+        .status(200);
+    } catch (error) {
+      console.error(error);
     }
+    return;
+  }
+  let _id = req.body._id;
+  // let pokeballCount = req.body.pokeballCount;
+  // let pokeid = req.body.id;
+  // let pokemonName = req.body.pokemonName;
+
+  try {
+    let options = { new: true };
+    let updates = {
+      $set: { 'pokeball.pokeballCount': req.body.pokeballCount - 1 },
+      $push: {
+        pokemonCollection: {
+          pokeid: req.body.pokeid,
+          name: req.body.pokemonName,
+          is_legendary: req.body.is_legendary,
+        },
+      },
+    };
+    let result = await userData.findByIdAndUpdate(_id, updates, options);
+    // console.log(result);
+    res
+      .send({
+        created: true,
+        success: result,
+      })
+      .status(201);
   } catch (error) {
     console.error(error);
   }
 });
 
-router.post('/getEnergy', async (req, res) => {
+// router.post('/getEnergy', async (req, res) => {
+//   try {
+//     let result = await userData.find({ userid: req.body.userid });
+//     // console.log(result[0]._id);
+//     let _id = result[0]._id;
+//     let currentCredit = result[0].credits;
+//     // console.log(currentCredit);
+//     let updates = {
+//       credits: currentCredit + 200,
+//     };
+//     let options = { new: true };
+//     let changeEnergy = await userData.findByIdAndUpdate(_id, updates, options);
+//     res.send({
+//       recharged: true,
+//       info: changeEnergy,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//   }
+// });
+
+router.post('/pokeball', async (req, res) => {
+  // console.log(req.body);
+  const { userid, value } = req.body;
+  let result = await FindUserData(userid);
+  let _id = result[0]._id;
+  let currentpokeball = result[0].pokeball.pokeballCount;
+  let updates = {
+    $set: { 'pokeball.pokeballCount': currentpokeball + value },
+  };
+  let options = { new: true };
+
   try {
-    let result = await userData.find({ userid: req.body.userid });
-    // console.log(result[0]._id);
-    let _id = result[0]._id;
-    let currentCredit = result[0].credits;
-    // console.log(currentCredit);
-    let updates = {
-      credits: currentCredit + 200,
-    };
-    let options = { new: true };
-    let changeEnergy = await userData.findByIdAndUpdate(_id, updates, options);
-    res.send({
-      recharged: true,
-      info: changeEnergy,
-    });
+    let chgPokeBall = await userData.findByIdAndUpdate(_id, updates, options);
+    // console.log(typeof chgPokeBall);
+    if (Object.keys(chgPokeBall).length > 0) {
+      res.send({
+        addedItem: true,
+        info: chgPokeBall,
+      });
+    } else {
+      res.send({
+        addedItem: false,
+      });
+    }
   } catch (error) {
-    console.error(error);
+    console.log(error);
+  }
+});
+
+router.post('/berry', async (req, res) => {
+  const { userid, berryName } = req.body;
+  let result = await FindUserData(userid);
+  let _id = result[0]._id;
+  let currentBerryCount = result[0].berry.berryCount;
+  let updates = {
+    $set: { 'berry.berryCount': currentBerryCount + 1 },
+  };
+  let options = { new: true };
+
+  try {
+    let chgberryCount = await userData.findByIdAndUpdate(_id, updates, options);
+
+    if (Object.keys(chgberryCount).length > 0) {
+      res.send({
+        addedBerry: true,
+        info: chgberryCount,
+      });
+    } else {
+      res.send({
+        addedBerry: false,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.post('/inv', async (req, res) => {
+  const { userid } = req.body;
+  let result = await FindUserData(userid);
+
+  if (Object.keys(result).length > 0) {
+    res.send({
+      exists: true,
+      info: result,
+    });
+  } else {
+    res.send({
+      exists: false,
+    });
   }
 });
 

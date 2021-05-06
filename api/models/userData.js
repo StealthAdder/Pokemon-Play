@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const pokemonCollectionSchema = new mongoose.Schema({
   pokeid: {
-    type: String,
+    type: Number,
     sparse: true,
   },
   name: {
@@ -19,9 +19,32 @@ const userDataSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  credits: {
+  username: {
+    type: String,
+  },
+  pokeball: {
+    pokeballCount: {
+      type: Number,
+      default: 10,
+    },
+    limit: {
+      type: Number,
+      default: 10,
+    },
+  },
+  berry: {
+    berryCount: {
+      type: Number,
+      default: 2,
+    },
+    limit: {
+      type: Number,
+      default: 10,
+    },
+  },
+  xp: {
     type: Number,
-    default: 1000,
+    default: 0,
   },
   pokemonCollection: [pokemonCollectionSchema],
 });
