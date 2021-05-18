@@ -88,7 +88,12 @@ client.on('message', (message) => {
   let cmd = messageArray[0];
   let args = messageArray.slice(1);
 
-  CommandHandler();
+  if (
+    message.content.startsWith(PREFIX) ||
+    message.content.startsWith(PREFIX.toUpperCase())
+  ) {
+    CommandHandler();
+  }
 
   function CommandHandler() {
     let commandfile_1 = client.commands.get(cmd.slice(PREFIX.length));
